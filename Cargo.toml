@@ -10,7 +10,7 @@ homepage = "https://github.com/sensorfu/cpu-stats#readme"
 repository = "https://github.com/sensorfu/cpu-stats"
 readme = "README.md"
 
-category = [ "api-bindings", "os", "os::linux-apis", "os::macos-apis" ]
+categories = [ "api-bindings", "os", "os::linux-apis", "os::macos-apis" ]
 
 [dependencies]
 libc = "0.2"
