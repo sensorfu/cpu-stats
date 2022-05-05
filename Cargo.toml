@@ -1,0 +1,19 @@
+[package]
+name = "cpu-stats"
+version = "0.1.0"
+authors = [ "Ossi Herrala <oherrala@iki.fi>" ]
+license = "MIT"
+edition = "2021"
+
+description = "Read CPU usage counters from kernel"
+homepage = "https://github.com/sensorfu/cpu-stats#readme"
+repository = "https://github.com/sensorfu/cpu-stats"
+readme = "README.md"
+
+category = [ "api-bindings", "os", "os::linux-apis", "os::macos-apis" ]
+
+[dependencies]
+libc = "0.2"
+
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
+mach2 = "0.4"
