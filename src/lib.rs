@@ -129,8 +129,7 @@ mod linux {
     fn parse_to_duration(v: &str) -> Duration {
         let v = v.parse().unwrap();
         let d1 = Duration::from_secs(v);
-        let d2 = d1 / (clock_ticks() as u32);
-        d2
+        d1 / clock_ticks() as u32
     }
 }
 
