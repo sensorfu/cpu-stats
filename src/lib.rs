@@ -16,7 +16,7 @@ mod macos {
     use std::io;
     use std::time::Duration;
 
-    use crate::{CpuStats, clock_ticks};
+    use crate::{clock_ticks, CpuStats};
 
     pub fn cpu_stats() -> io::Result<crate::CpuStats> {
         let host_port = get_host_port();
@@ -103,7 +103,7 @@ mod linux {
     use std::io::{self, BufRead, BufReader};
     use std::time::Duration;
 
-    use crate::{CpuStats, clock_ticks};
+    use crate::{clock_ticks, CpuStats};
 
     pub fn read_proc_stat_cpu() -> io::Result<crate::CpuStats> {
         let mut fd = BufReader::new(std::fs::File::open("/proc/stat")?);
@@ -167,7 +167,7 @@ mod clock_ticks {
 
 #[cfg(test)]
 mod tests {
-    use crate::{cpu_stats, clock_ticks};
+    use crate::{clock_ticks, cpu_stats};
 
     #[test]
     fn test_clock_ticks() {
