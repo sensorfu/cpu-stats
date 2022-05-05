@@ -14,6 +14,7 @@ pub use macos::cpu_stats;
 #[cfg(target_os = "macos")]
 mod macos {
     use std::io;
+    use std::mem::MaybeUninit;
     use std::time::Duration;
 
     use crate::{clock_ticks, CpuStats};
@@ -55,16 +56,24 @@ mod macos {
         host: libc::mach_port_t,
     ) -> io::Result<Vec<(usize, usize, usize, usize)>> {
         let mut cpu_count: libc::natural_t = 0;
-        let mut cpu_info: libc::processor_info_array_t = std::ptr::null_mut();
+        let mut cpu_info: MaybeUninit<libc::processor_info_array_t> = MaybeUninit::uninit();
         let mut cpu_info_count = 0;
 
         let ret = unsafe {
-            libc::host_processor_info(host, 2, &mut cpu_count, &mut cpu_info, &mut cpu_info_count)
+            libc::host_processor_info(
+                host,
+                2,
+                &mut cpu_count,
+                cpu_info.as_mut_ptr(),
+                &mut cpu_info_count,
+            )
         };
 
         if ret == -1 {
             return Err(io::Error::last_os_error());
         }
+
+        let cpu_info = unsafe { cpu_info.assume_init() };
 
         let cpu_info_slice =
             unsafe { std::slice::from_raw_parts(cpu_info, cpu_info_count as usize) };
