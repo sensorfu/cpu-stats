@@ -6,6 +6,8 @@ pub struct CpuStats {
     pub user: Duration,
     /// processes executing in kernel mode
     pub system: Duration,
+    /// system twiddling thumbs
+    pub idle: Duration,
 }
 
 #[cfg(target_os = "macos")]
@@ -26,15 +28,18 @@ mod macos {
 
         let mut user_total: usize = 0;
         let mut system_total: usize = 0;
+        let mut idle_total: usize = 0;
 
-        for (user, system, _idle, _nice) in processor_info {
+        for (user, system, idle, _nice) in processor_info {
             user_total += user;
             system_total += system;
+            idle_total += idle;
         }
 
         let cpu_stats = CpuStats {
             user: Duration::from_secs(user_total as u64) / clock_ticks() as u32,
             system: Duration::from_secs(system_total as u64) / clock_ticks() as u32,
+            idle: Duration::from_secs(idle_total as u64) / clock_ticks() as u32,
         };
 
         Ok(cpu_stats)
@@ -114,6 +119,7 @@ mod linux {
 
     use crate::{clock_ticks, CpuStats};
 
+    // https://www.linuxhowtos.org/System/procstat.htm
     pub fn read_proc_stat_cpu() -> io::Result<crate::CpuStats> {
         let mut fd = BufReader::new(std::fs::File::open("/proc/stat")?);
 
@@ -128,6 +134,7 @@ mod linux {
                 1 => stats.user = parse_to_duration(v),
                 2 => (),
                 3 => stats.system = parse_to_duration(v),
+                4 => stats.idle = parse_to_duration(v),
                 _ => break,
             }
         }
@@ -188,5 +195,6 @@ mod tests {
         let stats = cpu_stats().unwrap();
         assert!(!stats.user.is_zero());
         assert!(!stats.system.is_zero());
+        assert!(!stats.idle.is_zero());
     }
 }
